@@ -1,15 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomePage">
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Deals of the day"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="#000000"
+            android:layout_marginBottom="8dp"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/dealOfTheDayCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:id="@+id/dealImage"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:src="@drawable/podemic"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp"
+              >
+
+                <TextView
+                    android:id="@+id/dealCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Microphones"
+                    android:textColor="#888888"
+                    android:textSize="13sp"/>
+
+                <TextView
+                    android:id="@+id/dealPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$108.20"
+                    android:textColor="#E53935"
+                    android:textStyle="bold"
+                    android:textSize="20sp"/>
+
+                <TextView
+                    android:id="@+id/dealName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RØDE PodMic"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/dealDescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dynamic microphone, Speaker microphone"
+                    android:textColor="#888888"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommended for you"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="12dp"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/card1"
+                    layout="@layout/product_card"
+                    android:layout_width="0dp"
+                    android:layout_weight="1" />
+
+                <include
+                    android:id="@+id/card2"
+                    layout="@layout/product_card"
+                    android:layout_width="0dp"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <include
+                    android:id="@+id/card3"
+                    layout="@layout/product_card"
+                    android:layout_width="0dp"
+                    android:layout_weight="1" />
+
+                <include
+                    android:id="@+id/card4"
+                    layout="@layout/product_card"
+                    android:layout_width="0dp"
+                    android:layout_weight="1" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </ScrollView>
