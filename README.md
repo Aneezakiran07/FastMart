@@ -56,7 +56,7 @@ app/
 
 A pre-built APK is available for direct installation on Android devices. No need to build from source.
 
-Download it here:
+Download it here: https://github.com/Aneezakiran07/FastMart/releases/tag/v1
 
 Steps:
 1. Download the APK from the link above
