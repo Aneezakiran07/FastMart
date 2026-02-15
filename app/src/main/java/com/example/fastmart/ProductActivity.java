@@ -12,6 +12,14 @@ import android.widget.ImageView;
 import android.widget.Button;
 import android.content.Intent;
 import android.content.Intent;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class ProductActivity extends AppCompatActivity {
 
@@ -35,6 +43,7 @@ public class ProductActivity extends AppCompatActivity {
         init();
         getproductsdetails();
         setproductdetails();
+        setClickListeners();
     }
 
     protected void getproductsdetails() {
@@ -66,5 +75,30 @@ public class ProductActivity extends AppCompatActivity {
     }
 
 
+    protected void setClickListeners() {
+
+        backButton.setOnClickListener(v -> finish());
+
+        buyNowButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Buy Now")
+                    .setMessage("Are you sure you want to buy " + name + "?")
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton("Confirm", (dialog, which) -> sendSms())
+                    .show();
+        });
+    }
+
+    protected void sendSms() {
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            String phoneNumber = "03224224234";
+            String message = name + " bought";
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+            Toast.makeText(this, "Order placed! SMS sent.", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "SMS failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }
