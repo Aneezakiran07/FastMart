@@ -2,4 +2,23 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="text_secondary">#FF888888</color>
+    <color name="price_red">#FFE53935</color>
+    <color name="brand_navy">#FF1A237E</color>
+    <color name="text_gray">#FF555555</color>
+    <color name="image_bg">#FFF5F5F5</color>
+    <color name="text_dark_gray">#FF444444</color>
+    <color name="button_dark">#FF1A1A1A</color>
+    <color name="dark_bg">#FF1A1A2E</color>
+    <color name="input_border">#FFE0E0E0</color>
+    <color name="tab_bg">#FFF0F0F0</color>
+    <color name="hint_color">#FFAAAAAA</color>
+
+    <color name="deal_bg">#FFF5F5F5</color>
+    <color name="strikethrough_gray">#FFAAAAAA</color>
+    <color name="nav_selected">#FF1A1A1A</color>
+    <color name="nav_unselected">#FF888888</color>
+    <color name="heart_default">#FFAAAAAA</color>
+    <color name="heart_active">#FFE53935</color>
+    <color name="section_divider">#FFE0E0E0</color>
 </resources>

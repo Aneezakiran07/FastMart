@@ -1,7 +1,6 @@
-package com.example.fastmart;
+package com.example.fastmart.view;
 
 import android.os.Bundle;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -11,18 +10,14 @@ import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.Button;
 import android.content.Intent;
-import android.content.Intent;
 import android.app.AlertDialog;
-import android.content.Intent;
-import android.os.Bundle;
-import android.telephony.SmsManager;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public class ProductActivity extends AppCompatActivity {
+import com.example.fastmart.root.MyApplication;
+import com.example.fastmart.R;
+import com.example.fastmart.model.Product;
 
+public class ProductActivity extends AppCompatActivity {
 
     String name, price, model, description;
     int image;
@@ -53,7 +48,6 @@ public class ProductActivity extends AppCompatActivity {
         model = intent.getStringExtra("model");
         description = intent.getStringExtra("description");
         image = intent.getIntExtra("image", 0);
-
     }
 
     protected void init() {
@@ -74,9 +68,7 @@ public class ProductActivity extends AppCompatActivity {
         productImage.setImageResource(image);
     }
 
-
     protected void setClickListeners() {
-
         backButton.setOnClickListener(v -> finish());
 
         buyNowButton.setOnClickListener(v -> {
@@ -84,21 +76,18 @@ public class ProductActivity extends AppCompatActivity {
                     .setTitle("Buy Now")
                     .setMessage("Are you sure you want to buy " + name + "?")
                     .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                    .setPositiveButton("Confirm", (dialog, which) -> sendSms())
+                    .setPositiveButton("Confirm", (dialog, which) -> addToCart())
                     .show();
         });
     }
 
-    protected void sendSms() {
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            String phoneNumber = "03224224234";
-            String message = name + " bought";
-            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-            Toast.makeText(this, "Order placed! SMS sent.", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "SMS failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
+    protected void addToCart() {
+        MyApplication app = (MyApplication) getApplicationContext();
 
+        Product p = new Product(name, price, "", model, description, image);
+
+        app.addToCart(p);
+
+        Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
+    }
 }

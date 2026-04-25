@@ -1,3 +1,56 @@
 <resources>
     <string name="app_name">FastMart</string>
+
+    <string name="onboarding_welcome">Welcome to FastMart!</string>
+    <string name="onboarding_desc">Your one-stop shop for everything.</string>
+    <string name="btn_get_started">Get Started</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tab_login">Login</string>
+    <string name="tab_signup">Sign Up</string>
+    <string name="get_started_title">Get Started now</string>
+    <string name="get_started_desc">Create an account or log in to explore about our app</string>
+    <string name="label_email">Email</string>
+    <string name="label_password">Password</string>
+    <string name="label_verify_password">Verify Password</string>
+    <string name="hint_email">example@gmail.com</string>
+    <string name="hint_password">••••••••</string>
+    <string name="btn_login">Log In</string>
+    <string name="btn_signup">Sign Up</string>
+
+    <string name="welcome_text">Hello User</string>
+    <string name="deals_of_day">Deals of the day</string>
+    <string name="recommended">Recommended for you</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_favourites">Favourites</string>
+    <string name="nav_cart">Cart</string>
+    <string name="nav_profile">Profile</string>
+    <string name="original_price">$199.99</string>
+
+    <string name="hint_search">Search products...</string>
+    <string name="btn_search">Search</string>
+    <string name="recent_searches">Recent Searches</string>
+    <string name="btn_clear_all">Clear All</string>
+    <string name="favourites_title">Favourites</string>
+    <string name="no_favourites">No favourites yet</string>
+    <string name="password">12345567</string>
+
+    <string name="cart_title">Cart</string>
+    <string name="cart_empty">Your cart is empty</string>
+    <string name="btn_checkout">Checkout</string>
+    <string name="total_price_default">Total: $0.00</string>
+    <string name="btn_increase">+</string>
+    <string name="btn_decrease">-</string>
+    <string name="profile_title">My Account</string>
+    <string name="label_name">Name</string>
+    <string name="label_address">Address</string>
+    <string name="label_dob">Date of Birth</string>
+    <string name="label_gender">Gender</string>
+    <string name="label_phone">Phone Number</string>
+
+    <string name="search_title">Search</string>
+    <string name="shipping_label">Shipping</string>
+    <string name="shipping_free">$0.00</string>
+    <string name="total_label">Total</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.fastmart;
+package com.example.fastmart.view;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.content.SharedPreferences;
+
+import com.example.fastmart.R;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -41,9 +44,28 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void moveToHomePage() {
-        startActivity(new Intent(SplashActivity.this, HomePage.class));
+        SharedPreferences prefs = getSharedPreferences("FastMartPrefs", MODE_PRIVATE);
+
+        boolean isFirstTime = prefs.getBoolean("app.isFirstTime", true);
+        boolean isLoggedIn = prefs.getBoolean("user.isLoggedIn", false);
+
+        if (isFirstTime) {
+            // first time opening app, goto onboarding
+            startActivity(new Intent(SplashActivity.this, OnboardingActivity.class));
+        }
+        else if (isLoggedIn) {
+            // is logged in, goto main screen
+            startActivity(new Intent(SplashActivity.this, MainActivity.class));
+        }
+        else {
+            //been here before, but NOT logged in, goto Login/Signup
+            startActivity(new Intent(SplashActivity.this, LoginSignupActivity.class));
+        }
+
+        // close splash screen so pressing back wont take us to splash
         finish();
     }
+
     protected void applyAnimation(){
         get_iv_truck.setAnimation(left_to_right);
 

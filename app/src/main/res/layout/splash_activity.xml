@@ -5,8 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="3"
-    android:background="#FFFFFF">
-
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -39,7 +38,7 @@
             android:text="FastMart"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="#1A237E" />
+            android:textColor="@color/brand_navy" />
 
         <TextView
             android:id="@+id/tv_tagline"
@@ -47,8 +46,9 @@
             android:layout_height="wrap_content"
             android:text="Your Daily Deals"
             android:textSize="16sp"
-            android:textColor="#555555"
+            android:textColor="@color/text_gray"
             android:layout_marginTop="8dp" />
+
     </LinearLayout>
 
 </LinearLayout>
