@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
-import com.example.fastmart.model.Product;
+import com.example.fastmart.models.Product;
 
 public class ProductActivity extends AppCompatActivity {
 

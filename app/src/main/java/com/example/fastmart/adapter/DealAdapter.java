@@ -15,7 +15,7 @@ import androidx.cardview.widget.CardView;
 
 import com.example.fastmart.view.ProductActivity;
 import com.example.fastmart.R;
-import com.example.fastmart.model.Product;
+import com.example.fastmart.models.Product;
 
 import java.util.List;
 

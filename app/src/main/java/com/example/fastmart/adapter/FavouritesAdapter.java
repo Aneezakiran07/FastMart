@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
-import com.example.fastmart.model.Product;
+import com.example.fastmart.models.Product;
 
 import java.util.List;
 

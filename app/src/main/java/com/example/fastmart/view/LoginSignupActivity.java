@@ -7,22 +7,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.fastmart.R;
 import com.example.fastmart.adapter.ViewPagerAdapter;
 import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import android.view.View;
 import android.view.ViewGroup;
 
 public class LoginSignupActivity extends AppCompatActivity {
+
     ViewPagerAdapter adapter;
     ViewPager2 viewPager2;
     TabLayout tabLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,20 +34,19 @@ public class LoginSignupActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         init();
         setupTabs();
         setupPageChangeListener();
-
     }
 
-    protected void init(){
-        viewPager2=findViewById(R.id.viewPager);
-        tabLayout=findViewById(R.id.tabLayout);
-        adapter=new ViewPagerAdapter(this);
+    private void init() {
+        viewPager2 = findViewById(R.id.viewPager);
+        tabLayout = findViewById(R.id.tabLayout);
+        adapter = new ViewPagerAdapter(this);
         viewPager2.setAdapter(adapter);
-
-      //  viewPager2.post(() -> updateViewPagerHeight(0));
     }
+
     private void setupTabs() {
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
             switch (position) {
@@ -82,5 +82,23 @@ public class LoginSignupActivity extends AppCompatActivity {
         params.height = child.getMeasuredHeight();
         viewPager2.setLayoutParams(params);
     }
-}
 
+    // signup fragment calls this after firebase creates the user
+    // it hides the tablayout and viewpager and shows the profile setup screen
+    public void navigateToProfileSetup(String userId, String email) {
+        tabLayout.setVisibility(View.GONE);
+        viewPager2.setVisibility(View.GONE);
+
+        Bundle args = new Bundle();
+        args.putString("userId", userId);
+        args.putString("email", email);
+
+        ProfileSetupFragment fragment = new ProfileSetupFragment();
+        fragment.setArguments(args);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main, fragment)
+                .commit();
+    }
+}

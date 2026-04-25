@@ -13,7 +13,7 @@ import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.adapter.ProductAdapter;
 import com.example.fastmart.R;
 import com.example.fastmart.adapter.DealAdapter;
-import com.example.fastmart.model.Product;
+import com.example.fastmart.models.Product;
 
 import java.util.ArrayList;
 

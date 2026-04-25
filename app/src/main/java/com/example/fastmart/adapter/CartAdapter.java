@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
-import com.example.fastmart.model.CartItem;
-import com.example.fastmart.model.Product;
+import com.example.fastmart.models.CartItem;
+import com.example.fastmart.models.Product;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 

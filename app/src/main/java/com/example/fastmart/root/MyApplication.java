@@ -3,8 +3,8 @@ package com.example.fastmart.root;
 import android.app.Application;
 
 import com.example.fastmart.R;
-import com.example.fastmart.model.CartItem;
-import com.example.fastmart.model.Product;
+import com.example.fastmart.models.CartItem;
+import com.example.fastmart.models.Product;
 
 import java.util.ArrayList;
 

@@ -1,7 +1,6 @@
 package com.example.fastmart.view;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,14 +8,28 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.fastmart.R;
+import com.example.fastmart.utils.SessionManager;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import com.example.fastmart.models.User;
 
 public class LoginFragment extends Fragment {
 
     EditText etEmail, etPassword;
     Button btnLogin;
+    FirebaseAuth auth;
+    DatabaseReference reference;
+    SessionManager sessionManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -25,11 +38,9 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         init(view);
-
         btnLogin.setOnClickListener(v -> handleLogin());
     }
 
@@ -37,43 +48,80 @@ public class LoginFragment extends Fragment {
         etEmail = view.findViewById(R.id.etEmail);
         etPassword = view.findViewById(R.id.etPassword);
         btnLogin = view.findViewById(R.id.btnLogin);
+        auth = FirebaseAuth.getInstance();
+        reference = FirebaseDatabase.getInstance().getReference("Users");
+        sessionManager = new SessionManager(requireContext());
     }
 
     private void handleLogin() {
-        String enteredEmail = etEmail.getText().toString().trim();
-        String enteredPassword = etPassword.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
 
-        // check empty fields
-        if (enteredEmail.isEmpty()) {
+        if (email.isEmpty()) {
             etEmail.setError("Email is required");
             return;
         }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches()) {
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             etEmail.setError("Enter a valid email");
             return;
         }
-        if (enteredPassword.isEmpty()) {
+        if (password.isEmpty()) {
             etPassword.setError("Password is required");
             return;
         }
 
-        SharedPreferences prefs = requireActivity()
-                .getSharedPreferences("FastMartPrefs", requireActivity().MODE_PRIVATE);
+        btnLogin.setEnabled(false);
 
-        // fetch saved credentials from signup
-        String savedEmail = prefs.getString("user.email", "");
-        String savedPassword = prefs.getString("user.password", "");
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener(authResult -> {
+                    String userId = authResult.getUser().getUid();
 
-        if (enteredEmail.equals(savedEmail) && enteredPassword.equals(savedPassword)) {
-            // save login state so user stays logged in
-            prefs.edit().putBoolean("user.isLoggedIn", true).apply();
+                    // fetch user info from firebase to get accountType
+                    reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            User user = snapshot.getValue(User.class);
 
+                            if (user == null) {
+                                btnLogin.setEnabled(true);
+                                Toast.makeText(requireContext(),
+                                        "User data not found",
+                                        Toast.LENGTH_SHORT).show();
+                                return;
+                            }
 
-            Intent intent = new Intent(requireActivity(), MainActivity.class);
-            startActivity(intent);
-            requireActivity().finish();
-        } else {
-            Toast.makeText(requireActivity(), "Invalid email or password", Toast.LENGTH_SHORT).show();
-        }
+                            // save session so user stays logged in next open
+                            sessionManager.createLoginSession(
+                                    userId,
+                                    user.getName(),
+                                    user.getEmail(),
+                                    user.getAccountType()
+                            );
+
+                            // route to correct home based on account type
+                            if (user.getAccountType().equals("Seller")) {
+                                startActivity(new Intent(requireActivity(), SellerActivity.class));
+                            } else {
+                                startActivity(new Intent(requireActivity(), MainActivity.class));
+                            }
+
+                            requireActivity().finish();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            btnLogin.setEnabled(true);
+                            Toast.makeText(requireContext(),
+                                    "Database error: " + error.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    btnLogin.setEnabled(true);
+                    Toast.makeText(requireContext(),
+                            "Login failed: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 }

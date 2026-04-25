@@ -1,4 +1,4 @@
-package com.example.fastmart.model;
+package com.example.fastmart.models;
 
 public class CartItem {
 

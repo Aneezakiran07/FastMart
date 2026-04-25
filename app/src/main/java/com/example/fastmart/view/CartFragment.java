@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
 import com.example.fastmart.adapter.CartAdapter;
-import com.example.fastmart.model.CartItem;
+import com.example.fastmart.models.CartItem;
 
 import java.util.ArrayList;
 
