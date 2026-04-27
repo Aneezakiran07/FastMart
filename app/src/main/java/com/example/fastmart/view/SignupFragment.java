@@ -47,6 +47,7 @@ public class SignupFragment extends Fragment {
         String password = etPassword.getText().toString().trim();
         String verifyPassword = etVerifyPassword.getText().toString().trim();
 
+
         if (email.isEmpty()) {
             etEmail.setError("Email is required");
             return;

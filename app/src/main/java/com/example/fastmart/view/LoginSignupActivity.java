@@ -1,5 +1,6 @@
 package com.example.fastmart.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -93,12 +94,7 @@ public class LoginSignupActivity extends AppCompatActivity {
         args.putString("userId", userId);
         args.putString("email", email);
 
-        ProfileSetupFragment fragment = new ProfileSetupFragment();
-        fragment.setArguments(args);
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main, fragment)
-                .commit();
+        Intent intent=new Intent(this,MainActivity.class);
+        startActivity(intent);
     }
 }
