@@ -13,6 +13,7 @@
         android:paddingTop="16dp"
         android:paddingBottom="32dp">
 
+        <!-- email -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,10 +30,11 @@
             android:hint="@string/hint_email"
             android:inputType="textEmailAddress"
             android:paddingHorizontal="14dp"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color"/>
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
 
+        <!-- password -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,10 +52,11 @@
             android:hint="@string/hint_password"
             android:inputType="textPassword"
             android:paddingHorizontal="14dp"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color"/>
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
 
+        <!-- verify password -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,14 +74,16 @@
             android:hint="@string/hint_password"
             android:inputType="textPassword"
             android:paddingHorizontal="14dp"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color"/>
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
+
+        <!-- full name -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Full Name"
-            android:layout_marginTop="14dp"
             android:textColor="@color/text_secondary"
             android:textSize="13sp"/>
 
@@ -89,40 +94,21 @@
             android:layout_marginTop="4dp"
             android:background="@drawable/input_background"
             android:hint="@string/name_hint"
-            android:inputType="textPassword"
+            android:inputType="textPersonName"
             android:paddingHorizontal="14dp"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color" />
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
 
+        <!-- phone -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/account_type"
-            android:layout_marginTop="14dp"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"/>
-
-        <EditText
-            android:id="@+id/et"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/input_background"
-            android:hint="@string/hint_account_type"
-            android:inputType="textPassword"
-            android:paddingHorizontal="14dp"
-            android:textSize="15sp"
-            android:textColor="@color/black"
-            android:textColorHint="@color/hint_color" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/phone_number"
-            android:layout_marginTop="14dp"
             android:textColor="@color/text_secondary"
             android:textSize="13sp"/>
+
         <EditText
             android:id="@+id/etPhone"
             android:layout_width="match_parent"
@@ -133,11 +119,11 @@
             android:hint="@string/phont_hint"
             android:inputType="phone"
             android:paddingHorizontal="14dp"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color"/>
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
 
-        <!-- gender -->
+        <!-- gender radio group -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -149,9 +135,9 @@
             android:id="@+id/rgGender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
 
             <RadioButton
                 android:id="@+id/rbMale"
@@ -167,6 +153,41 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:text="@string/female"
+                android:textColor="@color/black"
+                android:textSize="15sp"/>
+
+        </RadioGroup>
+
+        <!-- account type radio group -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/account_type"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"/>
+
+        <RadioGroup
+            android:id="@+id/rgAccountType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbBuyer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buyer"
+                android:textColor="@color/black"
+                android:textSize="15sp"/>
+
+            <RadioButton
+                android:id="@+id/rbSeller"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:text="Seller"
                 android:textColor="@color/black"
                 android:textSize="15sp"/>
 
@@ -190,9 +211,9 @@
             android:hint="@string/country_hint"
             android:inputType="text"
             android:paddingHorizontal="14dp"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color"/>
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
 
         <!-- date of birth -->
         <TextView
@@ -212,11 +233,11 @@
             android:hint="@string/date_hint"
             android:inputType="date"
             android:paddingHorizontal="14dp"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color"/>
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
 
-        <!-- residential address -->
+        <!-- address -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -236,11 +257,9 @@
             android:paddingHorizontal="14dp"
             android:paddingVertical="12dp"
             android:gravity="top"
-            android:textSize="15sp"
             android:textColor="@color/black"
-            android:textColorHint="@color/hint_color"/>
-
-
+            android:textColorHint="@color/hint_color"
+            android:textSize="15sp"/>
 
         <Button
             android:id="@+id/btnSignUp"
@@ -253,7 +272,6 @@
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="16sp"/>
-
 
     </LinearLayout>
 

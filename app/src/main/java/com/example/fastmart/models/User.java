@@ -25,6 +25,8 @@ public class User {
         this.phone = phone;
         this.country = country;
         this.accountType = accountType;
+
+
     }
 
     public String getUserId() { return userId; }

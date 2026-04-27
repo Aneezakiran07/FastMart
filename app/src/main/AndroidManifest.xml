@@ -22,7 +22,8 @@
             android:exported="false" />
         <activity
             android:name=".view.LoginSignupActivity"
-            android:exported="false" />
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity
             android:name=".view.OnboardingActivity"
             android:exported="false" />
