@@ -1,6 +1,7 @@
 package com.example.fastmart.view;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,13 +14,23 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences prefs = getSharedPreferences("FastMartPrefs", MODE_PRIVATE);
+        boolean isFirstTime = prefs.getBoolean("app.isFirstTime", true);
+
+        // show onboarding only on very first app open ever
+        if (isFirstTime) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+            finish();
+            return;
+        }
+
         SessionManager sessionManager = new SessionManager(this);
 
-        // skip login screen if user already logged in previously
+        // skip login screen if user is already logged in
         if (sessionManager.isLoggedIn()) {
             String accountType = sessionManager.getAccountType();
 
-            if (accountType.equals("Seller")) {
+            if ("Seller".equals(accountType)) {
                 startActivity(new Intent(this, SellerActivity.class));
             } else {
                 startActivity(new Intent(this, MainActivity.class));

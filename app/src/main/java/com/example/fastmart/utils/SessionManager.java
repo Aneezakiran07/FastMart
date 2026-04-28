@@ -36,7 +36,7 @@ public class SessionManager {
     public String  getEmail()         { return prefs.getString(KEY_EMAIL, null); }
     public String  getAccountType()   { return prefs.getString(KEY_ACCOUNT, null); }
 
-    public void logout() {
+    public void logoutUser() {
         editor.clear();
         editor.apply();
     }

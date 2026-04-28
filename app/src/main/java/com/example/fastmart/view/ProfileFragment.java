@@ -5,11 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,21 +15,20 @@ import androidx.fragment.app.Fragment;
 import com.example.fastmart.R;
 import com.example.fastmart.models.User;
 import com.example.fastmart.utils.SessionManager;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class ProfileFragment extends Fragment {
 
-
-    EditText etName, etPhone, etCountry, etDob, etAddress;
-    Spinner spinnerAccountType;
-    RadioGroup rgGender;
-    Button btnSaveProfile;
+    TextView tvName, tvPhone, tvCountry, tvDob, tvAddress, tvGender, tvAccountType;
+    Button btnLogout;
 
     DatabaseReference reference;
     SessionManager sessionManager;
-
-    String userId, email;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,87 +41,82 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
-        setupAccountTypeSpinner();
+        loadUserData();
 
-        // grab the userId and email passed from SignupFragment
-        if (getArguments() != null) {
-            userId = getArguments().getString("userId");
-            email = getArguments().getString("email");
-        }
-
-        btnSaveProfile.setOnClickListener(v -> handleSaveProfile());
+        btnLogout.setOnClickListener(v -> handleLogout());
     }
 
     private void init(View view) {
-        etName = view.findViewById(R.id.etName);
-        etPhone = view.findViewById(R.id.etPhone);
-        etCountry = view.findViewById(R.id.etCountry);
-        etDob = view.findViewById(R.id.etDob);
-        etAddress = view.findViewById(R.id.etAddress);
-        rgGender = view.findViewById(R.id.rgGender);
-        btnSaveProfile = view.findViewById(R.id.btnSaveProfile);
+        tvName        = view.findViewById(R.id.tvName);
+        tvPhone       = view.findViewById(R.id.tvPhone);
+        tvCountry     = view.findViewById(R.id.tvCountry);
+        tvDob         = view.findViewById(R.id.tvDob);
+        tvAddress     = view.findViewById(R.id.tvAddress);
+        tvGender      = view.findViewById(R.id.tvGender);
+        tvAccountType = view.findViewById(R.id.tvAccountType);
+        btnLogout     = view.findViewById(R.id.btnLogout);
 
-        reference = FirebaseDatabase.getInstance().getReference("Users");
+        reference      = FirebaseDatabase.getInstance().getReference("users");
         sessionManager = new SessionManager(requireContext());
     }
 
-    private void setupAccountTypeSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                new String[]{"Buyer", "Seller"}
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerAccountType.setAdapter(adapter);
-    }
+    private void loadUserData() {
+        // get the userId stored in sharedprefs during login
+        String userId = sessionManager.getUserId();
 
-    private void handleSaveProfile() {
-        String name = etName.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
-        String country = etCountry.getText().toString().trim();
-        String dob = etDob.getText().toString().trim();
-        String address = etAddress.getText().toString().trim();
-        String accountType = spinnerAccountType.getSelectedItem().toString();
-
-        // figure out which gender radio button is selected
-        int selectedGenderId = rgGender.getCheckedRadioButtonId();
-        String gender = selectedGenderId == R.id.rbMale ? "Male" : "Female";
-
-        if (name.isEmpty()) { etName.setError("Name is required"); return; }
-        if (phone.isEmpty()) { etPhone.setError("Phone is required"); return; }
-        if (country.isEmpty()) { etCountry.setError("Country is required"); return; }
-        if (dob.isEmpty()) { etDob.setError("Date of birth is required"); return; }
-        if (address.isEmpty()) { etAddress.setError("Address is required"); return; }
-        if (selectedGenderId == -1) {
-            Toast.makeText(requireContext(), "Please select a gender", Toast.LENGTH_SHORT).show();
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(requireContext(), "Session expired, please login again", Toast.LENGTH_SHORT).show();
+            handleLogout();
             return;
         }
 
-        btnSaveProfile.setEnabled(false);
+        // fetch user info from firebase using the userId
+        reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
 
-        User user = new User(userId, name, email, address, gender, dob, phone, country, accountType);
+                if (user == null) {
+                    Toast.makeText(requireContext(), "User data not found", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-        // push the full user object to firebase under their userId
-        reference.child(userId).setValue(user)
-                .addOnSuccessListener(unused -> {
+                // populate all fields with data from firebase
+                tvName.setText(user.getName());
+                tvPhone.setText(user.getPhone());
+                tvCountry.setText(user.getCountry());
+                tvDob.setText(user.getDob());
+                tvAddress.setText(user.getAddress());
+                tvGender.setText(user.getGender());
+                tvAccountType.setText(user.getAccountType());
+            }
 
-                    // save to sharedprefs so user stays logged in next time
-                    sessionManager.createLoginSession(userId, name, email, accountType);
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(requireContext(),
+                        "Failed to load profile: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-                    // send buyer to MainActivity, seller to SellerActivity
-                    if (accountType.equals("Seller")) {
-                        startActivity(new Intent(requireActivity(), SellerActivity.class));
-                    } else {
-                        startActivity(new Intent(requireActivity(), MainActivity.class));
-                    }
+    private void handleLogout() {
+        String userId = sessionManager.getUserId();
 
-                    requireActivity().finish();
-                })
-                .addOnFailureListener(e -> {
-                    btnSaveProfile.setEnabled(true);
-                    Toast.makeText(requireContext(),
-                            "Failed to save profile: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                });
+        // remove user data from firebase realtime db
+        if (userId != null && !userId.isEmpty()) {
+            reference.child(userId).removeValue();
+        }
+
+        // sign out from firebase auth
+        FirebaseAuth.getInstance().signOut();
+
+        // clear sharedprefs session
+        sessionManager.logoutUser();
+
+        // send user back to login screen and clear back stack
+        Intent intent = new Intent(requireActivity(), LoginSignupActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

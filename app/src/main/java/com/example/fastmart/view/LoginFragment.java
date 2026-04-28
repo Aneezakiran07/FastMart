@@ -49,7 +49,7 @@ public class LoginFragment extends Fragment {
         etPassword = view.findViewById(R.id.etPassword);
         btnLogin = view.findViewById(R.id.btnLogin);
         auth = FirebaseAuth.getInstance();
-        reference = FirebaseDatabase.getInstance().getReference("Users");
+        reference = FirebaseDatabase.getInstance().getReference("users");
         sessionManager = new SessionManager(requireContext());
     }
 

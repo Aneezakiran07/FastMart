@@ -43,15 +43,15 @@ public class LoginSignupActivity extends AppCompatActivity {
 
     private void init() {
         viewPager2 = findViewById(R.id.viewPager);
-        tabLayout = findViewById(R.id.tabLayout);
-        adapter = new ViewPagerAdapter(this);
+        tabLayout  = findViewById(R.id.tabLayout);
+        adapter    = new ViewPagerAdapter(this);
         viewPager2.setAdapter(adapter);
     }
 
     private void setupTabs() {
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
             switch (position) {
-                case 0: tab.setText("Login"); break;
+                case 0: tab.setText("Login");   break;
                 case 1: tab.setText("Sign Up"); break;
             }
         }).attach();
@@ -84,8 +84,7 @@ public class LoginSignupActivity extends AppCompatActivity {
         viewPager2.setLayoutParams(params);
     }
 
-    // signup fragment calls this after firebase creates the user
-    // it hides the tablayout and viewpager and shows the profile setup screen
+    // called after firebase creates the account, shows profile form before going home
     public void navigateToProfileSetup(String userId, String email) {
         tabLayout.setVisibility(View.GONE);
         viewPager2.setVisibility(View.GONE);
@@ -94,7 +93,23 @@ public class LoginSignupActivity extends AppCompatActivity {
         args.putString("userId", userId);
         args.putString("email", email);
 
-        Intent intent=new Intent(this,MainActivity.class);
-        startActivity(intent);
+        ProfileFragment profileFragment = new ProfileFragment();
+        profileFragment.setArguments(args);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main, profileFragment)
+                .commit();
+    }
+
+    // called by ProfileFragment after saving user data to firebase
+    // routes to correct home screen based on account type
+    public void navigateToHome(String accountType) {
+        if ("Seller".equals(accountType)) {
+            startActivity(new Intent(this, SellerActivity.class));
+        } else {
+            startActivity(new Intent(this, MainActivity.class));
+        }
+        finish();
     }
 }

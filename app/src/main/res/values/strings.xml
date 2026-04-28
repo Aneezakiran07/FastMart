@@ -69,4 +69,11 @@
     <string name="male">Male</string>
     <string name="phont_hint">202-555-0143</string>
     <string name="gender">GENDER</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="buyer">Buyer</string>
+    <string name="seller">Seller</string>
+    <string name="btn_save_profile">Save Profile</string>
+    <string name="log_out">Log Out</string>
 </resources>

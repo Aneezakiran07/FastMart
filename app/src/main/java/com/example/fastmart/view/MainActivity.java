@@ -1,12 +1,13 @@
 package com.example.fastmart.view;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.fastmart.R;
+import com.example.fastmart.utils.SessionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,16 +18,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // check login and onboarding state first
-        SharedPreferences prefs = getSharedPreferences("FastMartPrefs", MODE_PRIVATE);
-        boolean isLoggedIn = prefs.getBoolean("user.isLoggedIn", false);
-        boolean isFirstTime = prefs.getBoolean("app.isFirstTime", true);
+        SessionManager sessionManager = new SessionManager(this);
 
-        if (!isLoggedIn && isFirstTime) {
-            startActivity(new Intent(this, OnboardingActivity.class));
-            finish();
-            return;
-        } else if (!isLoggedIn) {
+        // redirect to login if session has expired or user logged out
+        if (!sessionManager.isLoggedIn()) {
             startActivity(new Intent(this, LoginSignupActivity.class));
             finish();
             return;
@@ -35,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         init();
 
-        // show home fragment on launch
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
         }
