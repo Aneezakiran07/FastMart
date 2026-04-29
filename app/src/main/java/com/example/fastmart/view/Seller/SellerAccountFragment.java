@@ -1,66 +1,113 @@
 package com.example.fastmart.view.Seller;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.example.fastmart.R;
+import com.example.fastmart.models.User;
+import com.example.fastmart.utils.SessionManager;
+import com.example.fastmart.view.LoginSignupActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SellerAccountFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class SellerAccountFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    TextView tvName, tvPhone, tvCountry, tvDob, tvAddress, tvGender;
+    Button btnLogout;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    DatabaseReference reference;
+    SessionManager sessionManager;
 
-    public SellerAccountFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SellerAccountFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SellerAccountFragment newInstance(String param1, String param2) {
-        SellerAccountFragment fragment = new SellerAccountFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+    public SellerAccountFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_seller_account, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        init(view);
+        loadUserData();
+        btnLogout.setOnClickListener(v -> handleLogout());
+    }
+
+    private void init(View view) {
+        tvName    = view.findViewById(R.id.tvName);
+        tvPhone   = view.findViewById(R.id.tvPhone);
+        tvCountry = view.findViewById(R.id.tvCountry);
+        tvDob     = view.findViewById(R.id.tvDob);
+        tvAddress = view.findViewById(R.id.tvAddress);
+        tvGender  = view.findViewById(R.id.tvGender);
+        btnLogout = view.findViewById(R.id.btnLogout);
+
+        reference      = FirebaseDatabase.getInstance().getReference("users");
+        sessionManager = new SessionManager(requireContext());
+    }
+
+    private void loadUserData() {
+        String userId = sessionManager.getUserId();
+
+        if (userId == null || userId.isEmpty()) {
+            handleLogout();
+            return;
+        }
+
+        // fetch user profile from firebase using stored userId
+        reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                if (user == null) {
+                    Toast.makeText(requireContext(),
+                            "User data not found", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                tvName.setText(user.getName());
+                tvPhone.setText(user.getPhone());
+                tvCountry.setText(user.getCountry());
+                tvDob.setText(user.getDob());
+                tvAddress.setText(user.getAddress());
+                tvGender.setText(user.getGender());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(requireContext(),
+                        "Failed to load profile: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void handleLogout() {
+        String userId = sessionManager.getUserId();
+
+        // delete user data from firebase on logout
+        if (userId != null && !userId.isEmpty()) {
+            reference.child(userId).removeValue();
+        }
+
+        FirebaseAuth.getInstance().signOut();
+        sessionManager.logoutUser();
+
+        Intent intent = new Intent(requireActivity(), LoginSignupActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }
