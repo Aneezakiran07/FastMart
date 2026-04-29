@@ -15,17 +15,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FastMart">
         <activity
-            android:name=".view.SellerActivity"
+            android:name=".view.Seller.SellerAddActivity"
             android:exported="false" />
         <activity
-            android:name=".view.Seller.SellerActivity"
+            android:name=".view.SellerActivity"
             android:exported="false" />
         <activity
             android:name=".view.MainActivity"
             android:exported="false" />
         <activity
             android:name=".view.LoginSignupActivity"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".view.OnboardingActivity"
             android:exported="false" />
