@@ -1,26 +1,28 @@
 package com.example.fastmart.view;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import android.widget.TextView;
-import android.widget.ImageView;
-import android.widget.Button;
-import android.content.Intent;
-import android.app.AlertDialog;
-import android.widget.Toast;
 
-import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
 import com.example.fastmart.models.Product;
+import com.example.fastmart.root.MyApplication;
 
 public class ProductActivity extends AppCompatActivity {
 
-    String name, price, model, description;
+    String name, price, category, description;
     int image;
+
     TextView productName, productPrice, productModel, productDescription, backButton;
     ImageView productImage;
     Button buyNowButton;
@@ -35,59 +37,65 @@ public class ProductActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
         init();
-        getproductsdetails();
-        setproductdetails();
+        getProductDetails();
+        setProductDetails();
         setClickListeners();
     }
 
-    protected void getproductsdetails() {
-        Intent intent = getIntent();
-        name = intent.getStringExtra("name");
-        price = intent.getStringExtra("price");
-        model = intent.getStringExtra("model");
-        description = intent.getStringExtra("description");
-        image = intent.getIntExtra("image", 0);
-    }
-
-    protected void init() {
-        productName = findViewById(R.id.productName);
-        productPrice = findViewById(R.id.productPrice);
-        productModel = findViewById(R.id.productModel);
+    private void init() {
+        productName        = findViewById(R.id.productName);
+        productPrice       = findViewById(R.id.productPrice);
+        productModel       = findViewById(R.id.productModel);
         productDescription = findViewById(R.id.productDescription);
-        productImage = findViewById(R.id.productImage);
-        buyNowButton = findViewById(R.id.buyNowButton);
-        backButton = findViewById(R.id.backButton);
+        productImage       = findViewById(R.id.productImage);
+        buyNowButton       = findViewById(R.id.buyNowButton);
+        backButton         = findViewById(R.id.backButton);
     }
 
-    protected void setproductdetails() {
+    private void getProductDetails() {
+        Intent intent = getIntent();
+        name        = intent.getStringExtra("name");
+        price       = intent.getStringExtra("price");
+        category    = intent.getStringExtra("category");
+        description = intent.getStringExtra("description");
+        image       = intent.getIntExtra("image", R.drawable.sony);
+    }
+
+    private void setProductDetails() {
         productName.setText(name);
         productPrice.setText(price);
-        productModel.setText(model);
+        productModel.setText(category);
         productDescription.setText(description);
-        productImage.setImageResource(image);
+
+        // fall back to default image if none was passed
+        if (image != 0) {
+            productImage.setImageResource(image);
+        } else {
+            productImage.setImageResource(R.drawable.sony);
+        }
     }
 
-    protected void setClickListeners() {
+    private void setClickListeners() {
         backButton.setOnClickListener(v -> finish());
 
-        buyNowButton.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Buy Now")
-                    .setMessage("Are you sure you want to buy " + name + "?")
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                    .setPositiveButton("Confirm", (dialog, which) -> addToCart())
-                    .show();
-        });
+        buyNowButton.setOnClickListener(v ->
+                new AlertDialog.Builder(this)
+                        .setTitle("Buy Now")
+                        .setMessage("Are you sure you want to buy " + name + "?")
+                        .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                        .setPositiveButton("Confirm", (dialog, which) -> addToCart())
+                        .show());
     }
 
-    protected void addToCart() {
+    private void addToCart() {
         MyApplication app = (MyApplication) getApplicationContext();
 
-        Product p = new Product(name, price, "", model, description, image);
+        // create product and add to in-memory cart
+        Product product = new Product(name, price, "", category, description, image);
+        app.addToCart(product);
 
-        app.addToCart(p);
-
-        Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, name + " added to cart", Toast.LENGTH_SHORT).show();
     }
 }

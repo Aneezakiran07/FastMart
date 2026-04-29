@@ -1,4 +1,4 @@
-package com.example.fastmart.view;
+package com.example.fastmart.view.Buyer;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

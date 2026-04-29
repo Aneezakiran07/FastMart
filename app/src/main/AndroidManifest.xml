@@ -18,7 +18,7 @@
             android:name=".view.Seller.SellerAddActivity"
             android:exported="false" />
         <activity
-            android:name=".view.SellerActivity"
+            android:name=".view.Seller.SellerActivity"
             android:exported="false" />
         <activity
             android:name=".view.MainActivity"

@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.fastmart.R;
 import com.example.fastmart.utils.SessionManager;
+import com.example.fastmart.view.Seller.SellerActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

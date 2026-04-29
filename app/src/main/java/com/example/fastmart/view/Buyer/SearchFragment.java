@@ -1,4 +1,4 @@
-package com.example.fastmart.view;
+package com.example.fastmart.view.Buyer;
 
 import android.content.Context;
 import android.content.SharedPreferences;

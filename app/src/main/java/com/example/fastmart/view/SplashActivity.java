@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.fastmart.utils.SessionManager;
+import com.example.fastmart.view.Seller.SellerActivity;
 
 public class SplashActivity extends AppCompatActivity {
 

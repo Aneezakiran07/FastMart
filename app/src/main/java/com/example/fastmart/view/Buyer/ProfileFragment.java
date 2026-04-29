@@ -1,4 +1,4 @@
-package com.example.fastmart.view;
+package com.example.fastmart.view.Buyer;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.example.fastmart.R;
 import com.example.fastmart.models.User;
 import com.example.fastmart.utils.SessionManager;
+import com.example.fastmart.view.LoginSignupActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

@@ -8,6 +8,11 @@ import androidx.fragment.app.Fragment;
 
 import com.example.fastmart.R;
 import com.example.fastmart.utils.SessionManager;
+import com.example.fastmart.view.Buyer.CartFragment;
+import com.example.fastmart.view.Buyer.FavouritesFragment;
+import com.example.fastmart.view.Buyer.HomeFragment;
+import com.example.fastmart.view.Buyer.ProfileFragment;
+import com.example.fastmart.view.Buyer.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

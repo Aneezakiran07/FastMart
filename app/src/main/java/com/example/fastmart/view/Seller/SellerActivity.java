@@ -1,6 +1,5 @@
-package com.example.fastmart.view;
+package com.example.fastmart.view.Seller;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -13,9 +12,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.fastmart.R;
 import com.example.fastmart.utils.SessionManager;
-import com.example.fastmart.view.Seller.SellerAccountFragment;
-import com.example.fastmart.view.Seller.SellerHomeFragment;
-import com.example.fastmart.view.Seller.SellerOrderHistoryFragment;
 import com.google.android.material.navigation.NavigationView;
 
 public class SellerActivity extends AppCompatActivity
