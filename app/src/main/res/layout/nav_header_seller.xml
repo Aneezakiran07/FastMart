@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
+    android:layout_height="220dp"
     android:background="@color/button_dark"
     android:orientation="vertical"
     android:gravity="bottom"
@@ -24,6 +24,46 @@
         android:text="seller@email.com"
         android:textColor="@color/white"
         android:textSize="13sp"
-        android:layout_marginTop="4dp"/>
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Colour Scheme"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnLightTheme"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Light"
+            android:textSize="13sp"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/white"
+            android:textColor="@color/button_dark"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnDarkTheme"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Dark"
+            android:textSize="13sp"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/button_dark"
+            android:textColor="@color/white"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>
