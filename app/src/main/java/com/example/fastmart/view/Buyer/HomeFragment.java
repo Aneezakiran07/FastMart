@@ -5,15 +5,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fastmart.root.MyApplication;
-import com.example.fastmart.adapter.ProductAdapter;
 import com.example.fastmart.R;
 import com.example.fastmart.adapter.DealAdapter;
+import com.example.fastmart.adapter.ProductAdapter;
 import com.example.fastmart.models.Product;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -21,7 +28,12 @@ public class HomeFragment extends Fragment {
 
     ListView lvDeals;
     RecyclerView rvRecommended;
-    MyApplication app;
+
+    DatabaseReference productsRef;
+    ArrayList<Product> productList;
+    ArrayList<Product> dealList;
+    ProductAdapter productAdapter;
+    DealAdapter dealAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,30 +42,59 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        app = (MyApplication) requireActivity().getApplication();
         init(view);
-        setupDeals();
-        setupRecommended();
+        loadProductsFromFirebase();
     }
 
     private void init(View view) {
-        lvDeals = view.findViewById(R.id.lvDeals);
+        lvDeals       = view.findViewById(R.id.lvDeals);
         rvRecommended = view.findViewById(R.id.rvRecommended);
-    }
 
-    private void setupDeals() {
+        productsRef = FirebaseDatabase.getInstance().getReference("products");
+        productList = new ArrayList<>();
+        dealList    = new ArrayList<>();
 
-        ArrayList<Product> dealList = new ArrayList<>(
-                app.masterProductList.subList(0, 3));
-
-        lvDeals.setAdapter(new DealAdapter(requireContext(), dealList));
-    }
-
-    private void setupRecommended() {
+        // setup adapters with empty lists first, they update when firebase responds
         rvRecommended.setLayoutManager(new GridLayoutManager(requireContext(), 2));
-        rvRecommended.setAdapter(new ProductAdapter(
-                requireContext(), app.masterProductList));
+        productAdapter = new ProductAdapter(requireContext(), productList);
+        rvRecommended.setAdapter(productAdapter);
+
+        dealAdapter = new DealAdapter(requireContext(), dealList);
+        lvDeals.setAdapter(dealAdapter);
+    }
+
+    private void loadProductsFromFirebase() {
+        // valueEventListener fires instantly and on every future change
+        productsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                productList.clear();
+                dealList.clear();
+
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    Product product = child.getValue(Product.class);
+                    if (product != null) {
+                        product.setProductId(child.getKey());
+                        productList.add(product);
+                    }
+                }
+
+                // use first 3 products as deals, rest go to recommended grid
+                dealList.addAll(productList.subList(0,
+                        Math.min(3, productList.size())));
+
+                productAdapter.notifyDataSetChanged();
+                dealAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(requireContext(),
+                        "Failed to load products: " + error.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

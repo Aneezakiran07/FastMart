@@ -7,13 +7,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
 import com.example.fastmart.models.Product;
+import com.example.fastmart.utils.DatabaseHelper;
 
 import java.util.List;
 
@@ -22,18 +23,18 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
     Context context;
     List<Product> favourites;
     OnDeleteListener deleteListener;
-    MyApplication app;
+    DatabaseHelper dbHelper;
 
     public interface OnDeleteListener {
         void onDelete(int position);
     }
 
     public FavouritesAdapter(Context context, List<Product> favourites,
-                             OnDeleteListener deleteListener, MyApplication app) {
-        this.context = context;
-        this.favourites = favourites;
+                             OnDeleteListener deleteListener, DatabaseHelper dbHelper) {
+        this.context        = context;
+        this.favourites     = favourites;
         this.deleteListener = deleteListener;
-        this.app = app;
+        this.dbHelper       = dbHelper;
     }
 
     @NonNull
@@ -51,9 +52,10 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
         holder.tvName.setText(product.getName());
         holder.tvPrice.setText(product.getPrice());
         holder.tvModel.setText(product.getModel());
-        holder.ivProduct.setImageResource(product.getImageRes());
+        holder.ivProduct.setImageResource(product.getImageRes() != 0
+                ? product.getImageRes() : R.drawable.sony);
 
-        // triple dot shows delete confirmation dialog
+        // triple dot shows delete confirmation dialog as required by assignment
         holder.ivMoreOptions.setOnClickListener(v ->
                 new AlertDialog.Builder(context)
                         .setTitle("Remove Favourite")
@@ -63,17 +65,16 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
                         .setNegativeButton("No", null)
                         .show());
 
-        // cart icon adds to global cart via app
+        // cart icon adds product to sqlite cart with quantity 1
         holder.ivCart.setOnClickListener(v -> {
-            app.addToCart(product);
-            Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show();
+            dbHelper.addToCart(product);
+            Toast.makeText(context, product.getName() + " added to cart",
+                    Toast.LENGTH_SHORT).show();
         });
     }
 
     @Override
-    public int getItemCount() {
-        return favourites.size();
-    }
+    public int getItemCount() { return favourites.size(); }
 
     static class FavViewHolder extends RecyclerView.ViewHolder {
         ImageView ivProduct, ivCart, ivMoreOptions;
@@ -81,12 +82,12 @@ public class FavouritesAdapter extends RecyclerView.Adapter<FavouritesAdapter.Fa
 
         public FavViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivProduct = itemView.findViewById(R.id.ivProduct);
-            ivCart = itemView.findViewById(R.id.ivCart);
+            ivProduct     = itemView.findViewById(R.id.ivProduct);
+            ivCart        = itemView.findViewById(R.id.ivCart);
             ivMoreOptions = itemView.findViewById(R.id.ivMoreOptions);
-            tvName = itemView.findViewById(R.id.tvName);
-            tvPrice = itemView.findViewById(R.id.tvPrice);
-            tvModel = itemView.findViewById(R.id.tvModel);
+            tvName        = itemView.findViewById(R.id.tvName);
+            tvPrice       = itemView.findViewById(R.id.tvPrice);
+            tvModel       = itemView.findViewById(R.id.tvModel);
         }
     }
 }

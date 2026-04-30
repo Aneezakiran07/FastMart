@@ -7,12 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fastmart.R;
 import com.example.fastmart.models.Product;
+import com.example.fastmart.utils.DatabaseHelper;
 import com.example.fastmart.view.ProductActivity;
 
 import java.util.List;
@@ -21,10 +23,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     Context context;
     List<Product> products;
+    DatabaseHelper dbHelper;
 
     public ProductAdapter(Context context, List<Product> products) {
         this.context  = context;
         this.products = products;
+        this.dbHelper = new DatabaseHelper(context);
     }
 
     @NonNull
@@ -43,20 +47,33 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.productPrice.setText(product.getPrice());
         holder.productModel.setText(product.getModel());
 
-        // use hardcoded image if imageRes is 0 or not set
-        if (product.getImageRes() != 0) {
-            holder.productImage.setImageResource(product.getImageRes());
-        } else {
-            holder.productImage.setImageResource(R.drawable.sony);
-        }
+        holder.productImage.setImageResource(product.getImageRes() != 0
+                ? product.getImageRes() : R.drawable.sony);
 
-        // hide heart icon for seller view, show for buyer view
         if (holder.ivHeart != null) {
-            updateHeartIcon(holder.ivHeart, product.isFavourite());
+            // check sqlite to show correct heart state on load
+            boolean isFav = dbHelper.isFavourite(product.getModel());
+            product.setFavourite(isFav);
+            updateHeartIcon(holder.ivHeart, isFav);
 
             holder.ivHeart.setOnClickListener(v -> {
-                product.setFavourite(!product.isFavourite());
-                updateHeartIcon(holder.ivHeart, product.isFavourite());
+                boolean currentlyFav = dbHelper.isFavourite(product.getModel());
+
+                if (currentlyFav) {
+                    // remove from sqlite favourites
+                    dbHelper.removeFavourite(product.getModel());
+                    product.setFavourite(false);
+                    updateHeartIcon(holder.ivHeart, false);
+                    Toast.makeText(context, "Removed from favourites",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    // add to sqlite favourites
+                    dbHelper.addFavourite(product);
+                    product.setFavourite(true);
+                    updateHeartIcon(holder.ivHeart, true);
+                    Toast.makeText(context, "Added to favourites",
+                            Toast.LENGTH_SHORT).show();
+                }
             });
         }
 
@@ -73,9 +90,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     @Override
-    public int getItemCount() {
-        return products.size();
-    }
+    public int getItemCount() { return products.size(); }
 
     private void updateHeartIcon(ImageView heartView, boolean isFavourite) {
         if (isFavourite) {

@@ -1,32 +1,30 @@
 package com.example.fastmart.view.Buyer;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
 import com.example.fastmart.adapter.FavouritesAdapter;
 import com.example.fastmart.models.Product;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
+import com.example.fastmart.utils.DatabaseHelper;
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class FavouritesFragment extends Fragment {
 
     RecyclerView rvFavourites;
     TextView tvEmpty;
-    List<Product> favouritesList;
+    ArrayList<Product> favouritesList;
     FavouritesAdapter favouritesAdapter;
-    MyApplication app;
+    DatabaseHelper dbHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,9 +33,8 @@ public class FavouritesFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        app = (MyApplication) requireActivity().getApplication();
         init(view);
         loadFavourites();
     }
@@ -45,50 +42,39 @@ public class FavouritesFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // reload every time user switches to this tab
-        favouritesList.clear();
+        // reload from sqlite every time user switches to this tab
         loadFavourites();
     }
 
     private void init(View view) {
-        rvFavourites = view.findViewById(R.id.rvFavourites);
-        tvEmpty = view.findViewById(R.id.tvEmpty);
+        rvFavourites   = view.findViewById(R.id.rvFavourites);
+        tvEmpty        = view.findViewById(R.id.tvEmpty);
+        dbHelper       = new DatabaseHelper(requireContext());
         favouritesList = new ArrayList<>();
 
         favouritesAdapter = new FavouritesAdapter(
-                requireContext(), favouritesList, this::onDeleteProduct, app);
+                requireContext(), favouritesList, this::onDeleteProduct, dbHelper);
         rvFavourites.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvFavourites.setAdapter(favouritesAdapter);
     }
 
     private void loadFavourites() {
-        SharedPreferences prefs = requireActivity()
-                .getSharedPreferences("FastMartPrefs", requireActivity().MODE_PRIVATE);
-        String json = prefs.getString("user.favourites", null);
-
-        if (json != null) {
-            Type type = new TypeToken<List<Product>>() {}.getType();
-            List<Product> saved = new Gson().fromJson(json, type);
-            if (saved != null) favouritesList.addAll(saved);
-        }
-
-        updateEmptyState();
+        // fetch all favourites from sqlite and refresh the list
+        favouritesList.clear();
+        favouritesList.addAll(dbHelper.getAllFavourites());
         favouritesAdapter.notifyDataSetChanged();
+        updateEmptyState();
     }
 
     private void onDeleteProduct(int position) {
+        Product product = favouritesList.get(position);
+
+        // delete from sqlite using model as unique key
+        dbHelper.removeFavourite(product.getModel());
+
         favouritesList.remove(position);
         favouritesAdapter.notifyItemRemoved(position);
-        saveFavourites();
         updateEmptyState();
-    }
-
-    private void saveFavourites() {
-        SharedPreferences prefs = requireActivity()
-                .getSharedPreferences("FastMartPrefs", requireActivity().MODE_PRIVATE);
-        prefs.edit()
-                .putString("user.favourites", new Gson().toJson(favouritesList))
-                .apply();
     }
 
     private void updateEmptyState() {
