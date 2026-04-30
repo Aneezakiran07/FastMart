@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
-import com.example.fastmart.view.ProductActivity;
+import com.example.fastmart.view.Buyer.ProductActivity;
 import com.example.fastmart.R;
 import com.example.fastmart.models.Product;
 

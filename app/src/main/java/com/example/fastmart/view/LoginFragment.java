@@ -81,6 +81,7 @@ public class LoginFragment extends Fragment {
                     reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            android.util.Log.d("LOGIN_DEBUG", "snapshot exists: " + snapshot.exists() + " key: " + snapshot.getKey() + " value: " + snapshot.getValue());
                             User user = snapshot.getValue(User.class);
 
                             if (user == null) {
@@ -96,7 +97,8 @@ public class LoginFragment extends Fragment {
                                     userId,
                                     user.getName(),
                                     user.getEmail(),
-                                    user.getAccountType()
+                                    user.getAccountType(),
+                                    user.getPhone()
                             );
 
                             // route to correct home based on account type

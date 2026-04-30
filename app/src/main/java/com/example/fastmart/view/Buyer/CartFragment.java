@@ -1,7 +1,6 @@
 package com.example.fastmart.view.Buyer;
 
 import android.Manifest;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -12,26 +11,38 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.fastmart.root.MyApplication;
 import com.example.fastmart.R;
 import com.example.fastmart.adapter.CartAdapter;
 import com.example.fastmart.models.CartItem;
+import com.example.fastmart.models.Order;
+import com.example.fastmart.utils.DatabaseHelper;
+import com.example.fastmart.utils.SessionManager;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class CartFragment extends Fragment {
 
     RecyclerView rvCart;
     TextView tvTotalPrice, tvEmpty;
     Button btnCheckout;
+
     CartAdapter cartAdapter;
-    MyApplication app;
+    ArrayList<CartItem> cartItems;
+    DatabaseHelper dbHelper;
+    SessionManager sessionManager;
+    DatabaseReference ordersRef;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,45 +51,54 @@ public class CartFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        app = (MyApplication) requireActivity().getApplication();
         init(view);
-        updateTotal();
-        updateEmptyState();
-
+        loadCart();
         btnCheckout.setOnClickListener(v -> handleCheckout());
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // refresh cart every time user opens this tab
-        if (cartAdapter != null) {
-            cartAdapter.notifyDataSetChanged();
-            updateTotal();
-        }
+        // reload from sqlite every time user switches to this tab
+        loadCart();
     }
 
     private void init(View view) {
-        rvCart = view.findViewById(R.id.rvCart);
-        tvTotalPrice = view.findViewById(R.id.tvTotalPrice);
-        tvEmpty = view.findViewById(R.id.tvEmpty);
-        btnCheckout = view.findViewById(R.id.btnCheckout);
+        rvCart         = view.findViewById(R.id.rvCart);
+        tvTotalPrice   = view.findViewById(R.id.tvTotalPrice);
+        tvEmpty        = view.findViewById(R.id.tvEmpty);
+        btnCheckout    = view.findViewById(R.id.btnCheckout);
 
-        cartAdapter = new CartAdapter(requireContext(), app, this::updateTotal);
+        dbHelper       = new DatabaseHelper(requireContext());
+        sessionManager = new SessionManager(requireContext());
+        ordersRef      = FirebaseDatabase.getInstance().getReference("orders");
+        cartItems      = new ArrayList<>();
+
+        cartAdapter = new CartAdapter(requireContext(), cartItems,
+                dbHelper, this::updateTotal);
         rvCart.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvCart.setAdapter(cartAdapter);
     }
 
+    private void loadCart() {
+        // fetch latest cart from sqlite and refresh ui
+        cartItems.clear();
+        cartItems.addAll(dbHelper.getAllCartItems());
+        cartAdapter.notifyDataSetChanged();
+        updateTotal();
+    }
+
     public void updateTotal() {
-        tvTotalPrice.setText(String.format("$%.2f", app.getCartTotal()));
+        // always recalculate from sqlite so total is accurate
+        double total = dbHelper.getCartTotal();
+        tvTotalPrice.setText(String.format("$%.2f", total));
         updateEmptyState();
-        if (cartAdapter != null) cartAdapter.notifyDataSetChanged();
     }
 
     private void updateEmptyState() {
-        if (app.getCartItems().isEmpty()) {
+        if (cartItems.isEmpty()) {
             tvEmpty.setVisibility(View.VISIBLE);
             rvCart.setVisibility(View.GONE);
             btnCheckout.setEnabled(false);
@@ -90,7 +110,6 @@ public class CartFragment extends Fragment {
     }
 
     private void handleCheckout() {
-
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(requireActivity(),
@@ -98,42 +117,61 @@ public class CartFragment extends Fragment {
             return;
         }
 
-        // build order summary for sms
-        StringBuilder order = new StringBuilder("FastMart Order:\n");
-        for (CartItem item : app.getCartItems()) {
+        ArrayList<CartItem> currentItems = dbHelper.getAllCartItems();
+        double total = dbHelper.getCartTotal();
+
+        // build sms summary from sqlite data
+        StringBuilder smsText = new StringBuilder("FastMart Order:\n");
+        for (CartItem item : currentItems) {
             double itemTotal = Double.parseDouble(
-                    item.getProduct().getPrice().replace("$", "")) * item.getQuantity();
-            order.append(item.getProduct().getName())
+                    item.getProduct().getPrice().replace("$", ""))
+                    * item.getQuantity();
+            smsText.append(item.getProduct().getName())
                     .append(" x").append(item.getQuantity())
                     .append(" = $").append(String.format("%.2f", itemTotal))
                     .append("\n");
         }
-        order.append("Total: $")
-                .append(String.format("%.2f", app.getCartTotal()));
+        smsText.append("Total: $").append(String.format("%.2f", total));
 
-        SharedPreferences prefs = requireActivity()
-                .getSharedPreferences("FastMartPrefs", requireActivity().MODE_PRIVATE);
-        String phone = prefs.getString("user.phone", "03224224164");
-
-        if (phone.isEmpty()) {
-            Toast.makeText(requireContext(),
-                    "No phone number saved", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String phone = sessionManager.getPhone();
+        if (phone == null || phone.isEmpty()) phone = "03000000000";
 
         try {
             SmsManager sms = SmsManager.getDefault();
-            ArrayList<String> parts = sms.divideMessage(order.toString());
+            ArrayList<String> parts = sms.divideMessage(smsText.toString());
             sms.sendMultipartTextMessage(phone, null, parts, null, null);
+
+            // save order to firebase so seller can view it
+            saveOrderToFirebase(currentItems, total);
+
+            // clear sqlite cart after successful checkout
+            dbHelper.clearCart();
+            cartItems.clear();
+            cartAdapter.notifyDataSetChanged();
+            updateTotal();
 
             Toast.makeText(requireContext(),
                     "Order placed! SMS sent.", Toast.LENGTH_SHORT).show();
-            app.getCartItems().clear();
-            cartAdapter.notifyDataSetChanged();
-            updateTotal();
+
         } catch (Exception e) {
             Toast.makeText(requireContext(),
-                    "SMS failed", Toast.LENGTH_SHORT).show();
+                    "SMS failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void saveOrderToFirebase(ArrayList<CartItem> items, double total) {
+        String orderId   = ordersRef.push().getKey();
+        String buyerName = sessionManager.getName();
+        String timestamp = new SimpleDateFormat("MMM dd, yyyy hh:mm a",
+                Locale.getDefault()).format(new Date());
+
+        Order order = new Order(orderId, buyerName, timestamp, total, items);
+
+        // push order to firebase under unique id for seller to see
+        ordersRef.child(orderId).setValue(order)
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(),
+                                "Order save failed: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show());
     }
 }

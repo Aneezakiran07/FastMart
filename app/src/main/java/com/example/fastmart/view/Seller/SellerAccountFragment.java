@@ -96,6 +96,8 @@ public class SellerAccountFragment extends Fragment {
     }
 
     private void handleLogout() {
+        android.util.Log.d("LOGOUT_DEBUG", "handleLogout called from: " +
+                Thread.currentThread().getStackTrace()[2].toString());
         String userId = sessionManager.getUserId();
 
         // delete user data from firebase on logout

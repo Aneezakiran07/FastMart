@@ -1,4 +1,4 @@
-package com.example.fastmart.view;
+package com.example.fastmart.view.Buyer;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -17,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.fastmart.R;
 import com.example.fastmart.models.Product;
 import com.example.fastmart.root.MyApplication;
+import com.example.fastmart.utils.DatabaseHelper;
 
 public class ProductActivity extends AppCompatActivity {
 
@@ -90,12 +91,9 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     private void addToCart() {
-        MyApplication app = (MyApplication) getApplicationContext();
-
-        // create product and add to in-memory cart
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
         Product product = new Product(name, price, "", category, description, image);
-        app.addToCart(product);
-
+        dbHelper.addToCart(product);
         Toast.makeText(this, name + " added to cart", Toast.LENGTH_SHORT).show();
     }
 }

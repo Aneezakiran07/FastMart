@@ -62,14 +62,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserData() {
-        // get the userId stored in sharedprefs during login
         String userId = sessionManager.getUserId();
 
+        // if no session just show empty screen, do not auto logout
         if (userId == null || userId.isEmpty()) {
-            Toast.makeText(requireContext(), "Session expired, please login again", Toast.LENGTH_SHORT).show();
-            handleLogout();
-            return;
+            Toast.makeText(requireContext(),
+                    "Session expired, please login again",
+                    Toast.LENGTH_SHORT).show();
+            return; // remove the handleLogout() call from here
         }
+
 
         // fetch user info from firebase using the userId
         reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -102,6 +104,8 @@ public class ProfileFragment extends Fragment {
     }
 
     private void handleLogout() {
+        android.util.Log.d("LOGOUT_DEBUG", "handleLogout called from: " +
+                Thread.currentThread().getStackTrace()[2].toString());
         String userId = sessionManager.getUserId();
 
         // remove user data from firebase realtime db

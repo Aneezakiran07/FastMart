@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.fastmart.R;
 import com.example.fastmart.models.Product;
 import com.example.fastmart.utils.DatabaseHelper;
-import com.example.fastmart.view.ProductActivity;
+import com.example.fastmart.view.Buyer.ProductActivity;
 
 import java.util.List;
 

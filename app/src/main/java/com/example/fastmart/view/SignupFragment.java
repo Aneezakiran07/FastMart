@@ -1,8 +1,6 @@
 package com.example.fastmart.view;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,25 +10,26 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.example.fastmart.models.User;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.fastmart.R;
+import com.example.fastmart.models.User;
+import com.example.fastmart.utils.SessionManager;
+import com.example.fastmart.view.Seller.SellerActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DatabaseReference;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignupFragment extends Fragment {
 
-    EditText etEmail, etPassword, etVerifyPassword, etFullName, etPhone, etDob, etAddress, etCountry;
+    EditText etEmail, etPassword, etVerifyPassword, etFullName,
+            etPhone, etDob, etAddress, etCountry;
     RadioGroup rgGender, rgAccountType;
     Button btnSignUp;
     FirebaseAuth auth;
     DatabaseReference dbRef;
+    SessionManager sessionManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,95 +45,102 @@ public class SignupFragment extends Fragment {
     }
 
     private void init(View view) {
-        etEmail        = view.findViewById(R.id.etEmail);
-        etPassword     = view.findViewById(R.id.etPassword);
+        etEmail          = view.findViewById(R.id.etEmail);
+        etPassword       = view.findViewById(R.id.etPassword);
         etVerifyPassword = view.findViewById(R.id.etVerifyPassword);
-        etFullName     = view.findViewById(R.id.etFullName);
-        etPhone        = view.findViewById(R.id.etPhone);
-        etDob          = view.findViewById(R.id.etDob);
-        etAddress      = view.findViewById(R.id.etAddress);
-        etCountry      = view.findViewById(R.id.etCountry);
-        rgGender       = view.findViewById(R.id.rgGender);
-        rgAccountType  = view.findViewById(R.id.rgAccountType);
-        btnSignUp      = view.findViewById(R.id.btnSignUp);
+        etFullName       = view.findViewById(R.id.etFullName);
+        etPhone          = view.findViewById(R.id.etPhone);
+        etDob            = view.findViewById(R.id.etDob);
+        etAddress        = view.findViewById(R.id.etAddress);
+        etCountry        = view.findViewById(R.id.etCountry);
+        rgGender         = view.findViewById(R.id.rgGender);
+        rgAccountType    = view.findViewById(R.id.rgAccountType);
+        btnSignUp        = view.findViewById(R.id.btnSignUp);
 
-        auth  = FirebaseAuth.getInstance();
-        // points to the users node in Realtime Database
-        dbRef = FirebaseDatabase.getInstance().getReference("users");
+        auth           = FirebaseAuth.getInstance();
+        dbRef          = FirebaseDatabase.getInstance().getReference("users");
+        sessionManager = new SessionManager(requireContext());
     }
 
     private void handleSignup() {
-        String email    = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-        String verify   = etVerifyPassword.getText().toString().trim();
-        String fullName = etFullName.getText().toString().trim();
-        String phone    = etPhone.getText().toString().trim();
-        String dob      = etDob.getText().toString().trim();
-        String address  = etAddress.getText().toString().trim();
-        String country  = etCountry.getText().toString().trim();
+        String email       = etEmail.getText().toString().trim();
+        String password    = etPassword.getText().toString().trim();
+        String verify      = etVerifyPassword.getText().toString().trim();
+        String fullName    = etFullName.getText().toString().trim();
+        String phone       = etPhone.getText().toString().trim();
+        String dob         = etDob.getText().toString().trim();
+        String address     = etAddress.getText().toString().trim();
+        String country     = etCountry.getText().toString().trim();
 
-        // read gender from radio group
-        int genderId = rgGender.getCheckedRadioButtonId();
-        String gender = (genderId == R.id.rbMale) ? "Male" : "Female";
-
-        // read account type
+        int genderId  = rgGender.getCheckedRadioButtonId();
         int accountId = rgAccountType.getCheckedRadioButtonId();
+
+        String gender      = (genderId == R.id.rbMale) ? "Male" : "Female";
         String accountType = (accountId == R.id.rbBuyer) ? "Buyer" : "Seller";
 
-        // validation
-        if (email.isEmpty()) { etEmail.setError("Email is required"); return; }
+        if (email.isEmpty())    { etEmail.setError("Email is required");        return; }
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setError("Enter a valid email"); return;
-        }
-        if (password.isEmpty()) { etPassword.setError("Password is required"); return; }
+            etEmail.setError("Enter a valid email"); return; }
+        if (password.isEmpty()) { etPassword.setError("Password is required");  return; }
         if (password.length() < 6) { etPassword.setError("Minimum 6 characters"); return; }
         if (!password.equals(verify)) { etVerifyPassword.setError("Passwords do not match"); return; }
-        if (rgGender.getCheckedRadioButtonId() == -1) {
-            Toast.makeText(requireContext(), "Please select a gender", Toast.LENGTH_SHORT).show(); return;
+        if (genderId == -1) {
+            Toast.makeText(requireContext(), "Please select a gender", Toast.LENGTH_SHORT).show();
+            return;
         }
-        if (rgAccountType.getCheckedRadioButtonId() == -1) {
-            Toast.makeText(requireContext(), "Please select an account type", Toast.LENGTH_SHORT).show(); return;
+        if (accountId == -1) {
+            Toast.makeText(requireContext(), "Please select an account type", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         btnSignUp.setEnabled(false);
 
+
+
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
                     String userId = authResult.getUser().getUid();
+                    android.util.Log.d("SIGNUP_DEBUG", "Auth success userId: " + userId);
 
-                    // store this all in user MODEL
                     User newUser = new User(userId, fullName, email, address, gender, dob, phone, country, accountType);
+                    android.util.Log.d("SIGNUP_DEBUG", "User object created: " + newUser.getName());
 
                     dbRef.child(userId).setValue(newUser)
-                            .addOnSuccessListener(aVoid -> {
+                            .addOnSuccessListener(unused -> {
+                                android.util.Log.d("SIGNUP_DEBUG", "DB write success");
                                 if (!isAdded()) return;
 
-                                SharedPreferences prefs = requireActivity()
-                                        .getSharedPreferences("FastMartPrefs", Context.MODE_PRIVATE);
-                                prefs.edit()
-                                        .putString("userId",      userId)
-                                        .putString("name",        fullName)
-                                        .putString("accountType", accountType)
-                                        .putBoolean("isLoggedIn", true)
-                                        .apply();
+                                // use session manager so all keys are consistent
+                                sessionManager.createLoginSession(
+                                        userId, fullName, email, accountType, phone);
 
-                                Toast.makeText(requireActivity(), "Registration Successful", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireActivity(),
+                                        "Registration Successful", Toast.LENGTH_SHORT).show();
 
+                                // route to correct screen based on account type
                                 if (accountType.equals("Seller")) {
-                                    startActivity(new Intent(requireActivity(), MainActivity.class));//seller
+                                    startActivity(new Intent(requireActivity(),
+                                            SellerActivity.class));
                                 } else {
-                                    startActivity(new Intent(requireActivity(), MainActivity.class));
+                                    startActivity(new Intent(requireActivity(),
+                                            MainActivity.class));
                                 }
-                                requireActivity().finish();
+                                requireActivity().finish();// rest of code
                             })
                             .addOnFailureListener(e -> {
+                                android.util.Log.e("SIGNUP_DEBUG", "DB write FAILED: " + e.getMessage());
                                 btnSignUp.setEnabled(true);
                                 Toast.makeText(requireActivity(), "Database error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
                 })
                 .addOnFailureListener(e -> {
+                    android.util.Log.e("SIGNUP_DEBUG", "Auth FAILED: " + e.getMessage());
                     btnSignUp.setEnabled(true);
                     Toast.makeText(requireActivity(), "Auth error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 }
+
+
+
